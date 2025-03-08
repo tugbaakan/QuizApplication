@@ -28,14 +28,16 @@ builder.Services.AddSwaggerGen();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
 });
+
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -53,8 +55,9 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 // Use CORS
-app.UseCors("AllowAll");
+app.UseCors();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

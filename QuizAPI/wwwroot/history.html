@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App - History</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/history.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">Quiz App</div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/history.html" class="nav-link active">History</a>
+        </div>
+        <div class="nav-user">
+            <span id="userInfo" style="display: none;">
+                Welcome, <span id="username"></span>!
+                <a href="#" id="logoutBtn" class="nav-link">Logout</a>
+            </span>
+            <span id="authLinks" style="display: none;">
+                <a href="/login.html" class="nav-link">Login</a>
+                <a href="/register.html" class="nav-link">Register</a>
+            </span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="authMessage" class="auth-message">
+            Please <a href="/login.html">login</a> or <a href="/register.html">register</a> to view your quiz history!
+        </div>
+
+        <div id="historyContainer" class="history-container" style="display: none;">
+            <h1>Your Quiz History</h1>
+            
+            <div class="history-filters">
+                <div class="filter-group">
+                    <label for="categoryFilter">Category:</label>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dateFilter">Time Period:</label>
+                    <select id="dateFilter">
+                        <option value="all">All Time</option>
+                        <option value="week">Last Week</option>
+                        <option value="month">Last Month</option>
+                        <option value="year">Last Year</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="history-stats">
+                <div class="stat-card">
+                    <h3>Total Quizzes</h3>
+                    <p id="totalQuizzes">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Average Score</h3>
+                    <p id="averageScore">0%</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Best Category</h3>
+                    <p id="bestCategory">-</p>
+                </div>
+            </div>
+
+            <div id="quizList" class="quiz-list">
+                <!-- Quiz results will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/history.js"></script>
+</body>
+</html> 

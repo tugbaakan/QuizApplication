@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QuizAPI.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace QuizAPI.Data;
 
@@ -13,6 +15,8 @@ public class QuizDbContext : DbContext
     public DbSet<Question> Questions { get; set; }
     public DbSet<Answer> Answers { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<QuizResult> QuizResults { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +39,18 @@ public class QuizDbContext : DbContext
             .HasOne(a => a.Question)
             .WithMany(q => q.Answers)
             .HasForeignKey(a => a.QuestionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<QuizResult>()
+            .HasOne(qr => qr.User)
+            .WithMany()
+            .HasForeignKey(qr => qr.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<QuizResult>()
+            .HasOne(qr => qr.Category)
+            .WithMany()
+            .HasForeignKey(qr => qr.CategoryId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 } 
