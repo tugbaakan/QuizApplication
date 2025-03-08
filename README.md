@@ -21,7 +21,7 @@ A RESTful API built with .NET Core for managing a quiz application. The applicat
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone <https://github.com/tugbaakan/QuizApplication>
 cd QuizApplication
 ```
 
