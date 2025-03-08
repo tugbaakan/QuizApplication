@@ -48,6 +48,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Serve static files
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 // Use CORS
 app.UseCors("AllowAll");
 

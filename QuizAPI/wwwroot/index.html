@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Application</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="welcome-screen" class="screen active">
+            <h1>Welcome to Quiz App</h1>
+            <p>Select a category to start</p>
+            <div id="categories-container" class="grid-container">
+                <!-- Categories will be loaded here -->
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-header">
+                <h2 id="category-name"></h2>
+                <div class="progress">
+                    Question <span id="current-question">1</span> of <span id="total-questions">0</span>
+                </div>
+            </div>
+            
+            <div class="quiz-content">
+                <p id="question-text"></p>
+                <div id="answers-container">
+                    <!-- Answers will be loaded here -->
+                </div>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn" class="btn" style="display: none;">Next Question</button>
+                <button id="finish-btn" class="btn" style="display: none;">Finish Quiz</button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="screen">
+            <h2>Quiz Complete!</h2>
+            <div class="result-content">
+                <p>Your score: <span id="score">0</span>/<span id="total-score">0</span></p>
+                <div id="result-breakdown">
+                    <!-- Result details will be shown here -->
+                </div>
+            </div>
+            <button id="restart-btn" class="btn">Try Another Category</button>
+        </div>
+    </div>
+    <script src="js/quiz.js"></script>
+</body>
+</html> 
