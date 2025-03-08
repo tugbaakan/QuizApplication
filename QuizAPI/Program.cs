@@ -1,10 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using QuizAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.WriteIndented = true;
+});
 
 // Configure PostgreSQL based on environment
 if (builder.Environment.IsDevelopment())
@@ -58,11 +63,14 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<QuizDbContext>();
         context.Database.Migrate();
+        
+        // Initialize sample data
+        await SampleData.Initialize(services);
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating the database.");
+        logger.LogError(ex, "An error occurred while migrating the database or seeding data.");
     }
 }
 

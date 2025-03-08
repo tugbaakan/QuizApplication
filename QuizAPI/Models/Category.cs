@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace QuizAPI.Models;
 
@@ -15,5 +16,6 @@ public class Category
     public string? Description { get; set; }
 
     // Navigation property
+    [JsonIgnore]
     public ICollection<Question> Questions { get; set; } = new List<Question>();
 } 
