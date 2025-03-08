@@ -4,6 +4,13 @@ using QuizAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add configuration sources
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
 // Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -11,15 +18,17 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.WriteIndented = true;
 });
 
-// Configure PostgreSQL based on environment
-if (builder.Environment.IsDevelopment())
-{
-    // Use User Secrets in Development
-    builder.Configuration.AddUserSecrets<Program>();
-}
+// Configure PostgreSQL
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// If running in Docker, use the service name 'db' as host
+var isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+var dbHost = isRunningInDocker ? "db" : "localhost";
+
+connectionString = connectionString.Replace("localhost", dbHost);
 
 builder.Services.AddDbContext<QuizDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
