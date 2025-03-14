@@ -1,4 +1,7 @@
+console.log('auth.js loaded');
+
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded in auth.js');
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const errorMessage = document.getElementById('errorMessage');
@@ -7,37 +10,49 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const formData = {
-                username: document.getElementById('username').value,
-                password: document.getElementById('password').value
-            };
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
             try {
+                console.log('Attempting login...');
                 const response = await fetch('/api/Auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify({ username, password })
                 });
 
                 if (response.ok) {
-                    const userData = await response.json();
-                    // Store user data in localStorage
-                    localStorage.setItem('userId', userData.id);
-                    localStorage.setItem('username', userData.username);
-                    localStorage.setItem('isAdmin', userData.isAdmin);
+                    const data = await response.json();
+                    console.log('Login successful, received data:', data);
                     
-                    // Redirect to home page
+                    // Store tokens and user info
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                    localStorage.setItem('userId', data.user.id);
+                    localStorage.setItem('username', data.user.username);
+                    localStorage.setItem('isAdmin', data.user.isAdmin);
+                    
+                    console.log('Stored in localStorage:', {
+                        token: localStorage.getItem('token'),
+                        refreshToken: localStorage.getItem('refreshToken'),
+                        userId: localStorage.getItem('userId'),
+                        username: localStorage.getItem('username'),
+                        isAdmin: localStorage.getItem('isAdmin')
+                    });
+
                     window.location.href = '/';
                 } else {
                     const error = await response.text();
                     errorMessage.textContent = error;
+                    /* console.error('Login failed:', error);
+                    alert(error.message || 'Login failed');*/
                 }
             } catch (error) {
-                errorMessage.textContent = 'An error occurred. Please try again.';
+                errorMessage.textContent = 'An error occurred. Please try again.';            
                 console.error('Login error:', error);
+                /*alert('An error occurred during login');*/
             }
         });
     }
@@ -77,8 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Check if user is already logged in
-    const userId = localStorage.getItem('userId');
-    if (userId && (window.location.pathname === '/login.html' || window.location.pathname === '/register.html')) {
+    const token = localStorage.getItem('token');
+    if (token && (window.location.pathname === '/login.html' || window.location.pathname === '/register.html')) {
         window.location.href = '/';
     }
 }); 

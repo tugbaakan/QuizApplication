@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuizAPI.Models;
 
@@ -12,6 +13,7 @@ public class User
     public string Username { get; set; } = string.Empty;
 
     [Required]
+    [EmailAddress]
     [StringLength(100)]
     public string Email { get; set; } = string.Empty;
 
@@ -25,4 +27,8 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? LastLoginAt { get; set; }
+
+    public virtual ICollection<QuizResult> QuizResults { get; set; }
+
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
 } 

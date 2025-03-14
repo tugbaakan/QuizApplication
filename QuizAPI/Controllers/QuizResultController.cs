@@ -2,11 +2,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizAPI.Data;
 using QuizAPI.Models;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Security.Claims;
 
 namespace QuizAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("strict")]
 public class QuizResultController : ControllerBase
 {
     private readonly QuizDbContext _context;
@@ -17,6 +20,7 @@ public class QuizResultController : ControllerBase
     }
 
     [HttpGet("user/{userId}")]
+    [EnableRateLimiting("strict")]
     public async Task<ActionResult<IEnumerable<QuizResultDto>>> GetUserResults(int userId)
     {
         var results = await _context.QuizResults
@@ -37,14 +41,27 @@ public class QuizResultController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<QuizResult>> SaveResult(SaveQuizResultDto resultDto)
+    [EnableRateLimiting("strict")]
+    public async Task<ActionResult<QuizResult>> SaveResult([FromBody] SaveQuizResultRequest request)
     {
+        // Get user ID from JWT token
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null)
+        {
+            return Unauthorized("User not authenticated");
+        }
+
+        if (!int.TryParse(userIdClaim.Value, out int userId))
+        {
+            return BadRequest("Invalid user ID in token");
+        }
+
         var quizResult = new QuizResult
         {
-            UserId = resultDto.UserId,
-            CategoryId = resultDto.CategoryId,
-            TotalQuestions = resultDto.TotalQuestions,
-            CorrectAnswers = resultDto.CorrectAnswers,
+            UserId = userId,
+            CategoryId = request.resultDto.CategoryId,
+            TotalQuestions = request.resultDto.TotalQuestions,
+            CorrectAnswers = request.resultDto.CorrectAnswers,
             CompletedAt = DateTime.UtcNow
         };
 
@@ -64,9 +81,13 @@ public class QuizResultDto
     public double Score { get; set; }
 }
 
+public class SaveQuizResultRequest
+{
+    public SaveQuizResultDto resultDto { get; set; } = null!;
+}
+
 public class SaveQuizResultDto
 {
-    public int UserId { get; set; }
     public int CategoryId { get; set; }
     public int TotalQuestions { get; set; }
     public int CorrectAnswers { get; set; }

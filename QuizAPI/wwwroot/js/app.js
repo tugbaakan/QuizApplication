@@ -1,4 +1,8 @@
+console.log('app.js loaded');
+
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded in app.js');
+    // DOM Elements
     const userInfo = document.getElementById('userInfo');
     const authLinks = document.getElementById('authLinks');
     const authMessage = document.getElementById('authMessage');
@@ -8,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const usernameSpan = document.getElementById('username');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    let currentUser = null;
+    // Quiz state
     let currentQuiz = {
         categoryId: null,
         questions: [],
@@ -16,39 +20,45 @@ document.addEventListener('DOMContentLoaded', () => {
         correctAnswers: 0
     };
 
-    // Check authentication status
+    // Check authentication state
     function checkAuth() {
-        const userId = localStorage.getItem('userId');
+        console.log('Checking authentication state...');
+        const token = localStorage.getItem('token');
         const username = localStorage.getItem('username');
         
-        if (userId && username) {
-            currentUser = {
-                id: userId,
-                username: username,
-                isAdmin: localStorage.getItem('isAdmin') === 'true'
-            };
-            
-            userInfo.style.display = 'block';
+        console.log('Auth state:', {
+            token: token ? 'Present' : 'Missing',
+            username: username || 'Missing'
+        });
+
+        if (token && username) {
+            console.log('User is logged in, showing user info');
+            // User is logged in
+            userInfo.style.display = 'inline';
             authLinks.style.display = 'none';
+            usernameSpan.textContent = username;
             authMessage.style.display = 'none';
             categoryList.style.display = 'grid';
-            usernameSpan.textContent = username;
-            
             loadCategories();
         } else {
+            console.log('User is not logged in, showing auth links');
+            // User is not logged in
             userInfo.style.display = 'none';
-            authLinks.style.display = 'block';
+            authLinks.style.display = 'inline';
             authMessage.style.display = 'block';
             categoryList.style.display = 'none';
-            quizContainer.style.display = 'none';
-            resultsContainer.style.display = 'none';
         }
     }
 
     // Load quiz categories
     async function loadCategories() {
         try {
-            const response = await fetch('/api/Category');
+            const token = localStorage.getItem('token');
+            const response = await fetch('/api/Category', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             if (response.ok) {
                 const categories = await response.json();
                 displayCategories(categories);
@@ -76,7 +86,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start quiz
     async function startQuiz(categoryId) {
         try {
-            const response = await fetch(`/api/Question/category/${categoryId}`);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/api/Question/category/${categoryId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             if (response.ok) {
                 const questions = await response.json();
                 currentQuiz = {
@@ -146,20 +161,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Finish quiz and save results
     async function finishQuiz() {
-        const quizResult = {
-            userId: currentUser.id,
-            categoryId: currentQuiz.categoryId,
-            totalQuestions: currentQuiz.questions.length,
-            correctAnswers: currentQuiz.correctAnswers
-        };
-
+        const token = localStorage.getItem('token');
         try {
             const response = await fetch('/api/QuizResult', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(quizResult)
+                body: JSON.stringify({
+                    resultDto: {
+                        categoryId: currentQuiz.categoryId,
+                        totalQuestions: currentQuiz.questions.length,
+                        correctAnswers: currentQuiz.correctAnswers
+                    }
+                })
             });
 
             if (response.ok) {
@@ -194,10 +210,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
             localStorage.removeItem('userId');
             localStorage.removeItem('username');
             localStorage.removeItem('isAdmin');
-            window.location.reload();
+            window.location.href = '/login.html';
         });
     }
 

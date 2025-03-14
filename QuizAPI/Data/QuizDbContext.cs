@@ -16,10 +16,13 @@ public class QuizDbContext : DbContext
     public DbSet<Answer> Answers { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<QuizResult> QuizResults { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         // Seed initial categories
         modelBuilder.Entity<Category>().HasData(
             new Category { Id = 1, Name = "Countries", Description = "Questions about countries and geography" },
@@ -43,7 +46,7 @@ public class QuizDbContext : DbContext
 
         modelBuilder.Entity<QuizResult>()
             .HasOne(qr => qr.User)
-            .WithMany()
+            .WithMany(u => u.QuizResults)
             .HasForeignKey(qr => qr.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
@@ -52,5 +55,24 @@ public class QuizDbContext : DbContext
             .WithMany()
             .HasForeignKey(qr => qr.CategoryId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasOne(rt => rt.User)
+            .WithMany(u => u.RefreshTokens)
+            .HasForeignKey(rt => rt.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Seed admin user
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = 1,
+                Username = "admin",
+                Email = "admin@example.com",
+                PasswordHash = "your_hashed_password_here", // You'll need to hash this
+                IsAdmin = true,
+                CreatedAt = DateTime.UtcNow
+            }
+        );
     }
 } 

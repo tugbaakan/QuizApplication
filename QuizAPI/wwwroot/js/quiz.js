@@ -141,7 +141,7 @@ function nextQuestion() {
 }
 
 // Show results
-function showResults() {
+async function showResults() {
     quizScreen.classList.remove('active');
     resultScreen.classList.add('active');
     
@@ -156,6 +156,38 @@ function showResults() {
             <p>${answer.isCorrect ? '✓ Correct' : '✗ Incorrect'}</p>
         </div>
     `).join('');
+
+    // Save quiz result
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.error('No authentication token found');
+            return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/QuizResult`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                resultDto: {
+                    categoryId: currentQuestions[0].categoryId,
+                    totalQuestions: currentQuestions.length,
+                    correctAnswers: score
+                }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to save quiz result');
+        }
+
+        console.log('Quiz result saved successfully');
+    } catch (error) {
+        console.error('Error saving quiz result:', error);
+    }
 }
 
 // Event listeners
